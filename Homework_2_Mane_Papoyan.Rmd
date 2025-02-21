@@ -1,0 +1,134 @@
+---
+title: "Homework 2"
+author: "Mane Papoyan"
+date: "2025-02-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+*Part 2*
+
+```{r}
+library(ggplot2)
+```
+
+```{r}
+df1 <- read.csv("/Users/Administrator/Desktop/lung_cancer_prediction_dataset.csv")
+df2 <- read.csv("/Users/Administrator/Desktop/global_air_pollution_dataset.csv")
+```
+
+*1* Create a Boxplot of Lung Cancer Deaths Distribution.
+
+```{r}
+ggplot(df1, aes(y = Annual_Lung_Cancer_Deaths)) + geom_boxplot(fill = "magenta", color = "black") + ggtitle("Boxplot of Lung Cancer Deaths Distribution") + ylab("Number of Deaths")
+```
+
+*2.* Create a Histogram of PM2.5 AQI Values
+
+```{r}
+ggplot(df2, aes(x = PM2.5_AQI_Value)) + geom_histogram(bins = 100, fill = "coral", color = "black", alpha = 0.7) + ggtitle("Histogram of PM2.5 AQI Values") + xlab("PM2.5 AQI Value") + ylab("Frequency")
+```
+
+*3.* Create a Density Plot of the Lung Cancer Mortality Rate.
+
+```{r}
+ggplot(df1, aes(x = Mortality_Rate)) + geom_density(fill = "hotpink", alpha = 1) + ggtitle("Density Plot of Lung Cancer Mortality Rate") + xlab("Mortality Rate") + ylab("Density") 
+```
+
+*4.* Create a Scatter Plot by generating 100 random values from both the normal and logistic distributions. The points should be brown and use theme_solarized with argument light set to false.
+
+```{r}
+set.seed(123)
+x_values <- rnorm(100, mean = 0, sd = 1)
+y_values <- rlogis(100, location = 0, scale = 1)
+df <- data.frame(X = x_values, Y = y_values)
+```
+
+```{r}
+library(ggthemes)
+```
+
+```{r}
+ggplot(df, aes(x = X, y = Y)) + geom_point(color = "brown") + ggtitle("Scatter Plot of Normal vs Logistic Distribution") + xlab("Normal Distribution") + ylab("Logistic Distribution") + theme_solarized(light = FALSE)
+```
+
+
+
+*Part 4*
+
+
+
+```{r}
+library(dplyr)
+
+df1_clean <- df1 %>%
+  filter(!is.na(Years_of_Smoking) & !is.na(Cancer_Stage) & !is.na(Gender))
+
+df1_clean <- df1_clean %>%
+  mutate(Cancer_Stage = factor(Cancer_Stage, levels = c("Stage 1", "Stage 2", "Stage 3", "Stage 4")))
+
+ggplot(df1_clean, aes(x = Years_of_Smoking, y = Cancer_Stage, color = Gender, shape = Gender)) +
+  geom_jitter(alpha = 0.5, width = 0, height = 0.4, size = 2) +
+
+  scale_color_manual(values = c("Female" = "#d554f1", "Male" = "#5469f1")) +
+  scale_shape_manual(values = c("Female" = 17, "Male" = 16)) +  
+  facet_grid(. ~ Gender) +
+  labs(
+    title = "Lung Cancer Stage vs. Smoking Years",
+    subtitle = "Comparison by Gender",
+    x = "Years of Smoking",
+    y = "Cancer Stage"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    plot.subtitle = element_text(hjust = 0.5, size = 12, face = "italic"),
+    strip.text = element_text(size = 14, face = "bold"),
+    axis.title = element_text(size = 12),
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom",
+    plot.background = element_rect(fill = "white", color = "black", size = 1)
+  ) +
+  scale_x_continuous(limits = c(0, 40), breaks = seq(0, 40, 10))
+```
+
+
+```{r}
+
+library(viridis)
+
+countries_to_include <- c("Brazil", "Germany", "India", "Italy", "Russian Federation", "United States of America")
+
+filtered_data <- df2 %>%
+  filter(Country %in% countries_to_include)
+
+ggplot(filtered_data, aes(x = PM2.5_AQI_Value, fill = Country)) +
+  geom_histogram(bins = 30, color = "black", alpha = 0.8) +
+  scale_fill_viridis_d(option = "plasma") +
+  facet_wrap(~ Country, scales = "free_y", ncol = 3) +
+  labs(
+    title = "PM2.5 AQI Distribution Across Countries",
+    subtitle = "Comparison of Air Pollution Levels",
+    x = "PM2.5 AQI Value",
+    y = "Frequency"
+  ) +
+  scale_x_continuous(limits = c(0, 500), breaks = seq(0, 500, 100)) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    plot.subtitle = element_text(hjust = 0.5, size = 12, face = "italic"),
+    strip.text = element_text(size = 12, face = "bold"),
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_line(color = "gray90"),
+    panel.grid.major.y = element_line(color = "gray90"),
+    legend.position = "bottom",
+    legend.title = element_text(size = 12),
+    plot.background = element_rect(fill = "white", color = "black", size = 1)
+  )
+
+```
+
+
