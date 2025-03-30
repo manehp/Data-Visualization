@@ -1,0 +1,59 @@
+---
+title: "Homework 4"
+author: "Mane Papoyan"
+date: "2025-03-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+*Part 5: Overall performance*
+Define unique color for each team per season. For each season create horizontal bar plot using total
+ number of points. Highlighting the winner with the unique color that you assigned to it. Save all
+ graphs in pdf.
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(RColorBrewer)
+```
+
+```{r}
+df2 <- read.csv("/Users/Administrator/bundesliga2.csv")
+```
+
+```{r}
+team_colors <- rep(brewer.pal(12, "Set3"), length.out = length(unique(df2$TEAM)))
+team_color_map <- setNames(team_colors, unique(df2$TEAM))
+```
+
+```{r}
+pdf("HW4_Part5_R_Bundesliga_Season_Performance.pdf", onefile = TRUE)
+
+seasons <- unique(df2$SEASON)
+
+for (season in seasons) {
+  
+  season_data <- df2 %>% filter(SEASON == season)
+  winner <- season_data %>% filter(POSITION == 1) %>% select(TEAM) %>% unlist()
+  
+  ggplot(season_data, aes(x = reorder(TEAM, -POINTS), y = POINTS, fill = TEAM)) +
+    geom_bar(stat = "identity", show.legend = FALSE) +
+    scale_fill_manual(values = team_color_map) +
+    geom_bar(data = subset(season_data, TEAM == winner), 
+             aes(x = reorder(TEAM, -POINTS), y = POINTS, fill = TEAM), 
+             stat = "identity", show.legend = FALSE) +
+    scale_fill_manual(values = c(team_color_map, winner = "gold")) + 
+    coord_flip() +
+    labs(title = paste("Bundesliga Season Performance: ", season),
+         x = "Team",
+         y = "Total Points") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+}
+
+dev.off()
+```
+
